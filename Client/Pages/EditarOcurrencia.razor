@@ -1,0 +1,134 @@
+﻿@page "/editar-ocurrencia/{idOcurrencia:int}"
+@using Incidencias.Shared.Models
+@inject HttpClient http
+@inject NavigationManager navigation
+<PageTitle>Editar Ocurrencias</PageTitle>
+<h4>Editando la ocurrencia</h4>
+<hr>
+<label class = "mensaje">@mensajeError</label><br>
+<label >Pertenece al dia de trabajo: @ocurrencia.DiaTrabajoId</label>
+<EditForm Model=@ocurrencia>
+    <div class = "form-control div-up">
+        <div class= "div-up-inside">
+            <div class ="div-up-middle">
+            <label>Descripción de la Ocurrencia</label>
+            <div class="input-div">
+                <InputText class="input" @bind-Value="ocurrencia.Descripcion"></InputText>
+                <ValidationMessage For="@(()=> ocurrencia.Descripcion)" />
+            </div>
+        </div>
+        <div class ="div-up-middle">
+            <label>Resumen de la Ocurrencia</label>
+            <div class="input-div-desc">
+                <InputText class="input" @bind-Value="ocurrencia.Resumen"></InputText>
+                <ValidationMessage For="@(()=> ocurrencia.Resumen)" />
+            </div>
+        </div>
+        </div>
+        <div class ="div-up-middle">
+            <label>Hora de la Ocurrencia</label>
+            <div class="input-div-desc">
+                <input type="time" class="input" @bind="ocurrencia.HoraOcurrencia"/>
+                <ValidationMessage For="@(()=> ocurrencia.HoraOcurrencia)" />
+            </div>
+        </div>
+        <div class ="div-up-middle">
+            <label>Reportado Por</label>
+            <div class="input-div-desc">
+                <InputText class="input" @bind-Value="ocurrencia.ReportadaPor"></InputText>
+                <ValidationMessage For="@(()=> ocurrencia.ReportadaPor)" />
+            </div>
+        </div>
+        <div class ="div-up-middle">
+            <select @bind="@estadoSeleccionado" class="input-select">
+              @foreach (var estado in Estados)
+              {
+                <option value="@estado">@estado</option>
+              }
+            </select>
+        </div>
+        <div class ="div-up-middle">
+            <select @bind="@tipoOcurrenciaSeleccionado" class="input-select">
+              @foreach (var tipo in TiposOcurrencia)
+              {
+                <option value="@tipo">@tipo</option>
+              }
+            </select>
+        </div>
+        <button class="button" onclick="@(() => EditarOcurrencias())" type="submit">Guardar Cambios</button>
+        <DataAnnotationsValidator/>
+        <a href="/">
+            <button type="button" class="button">Regresar</button>
+        </a>
+    </div>
+</EditForm>
+
+@code {
+    Incidencias.Shared.Models.Ocurrencia ocurrencia = new Incidencias.Shared.Models.Ocurrencia();
+    DiaTrabajo diaTrabajo = new DiaTrabajo();
+    string estadoSeleccionado = "";
+    string tipoOcurrenciaSeleccionado = "";
+    [Parameter]
+    public List<string> Estados { get; set; } = new List<string>();
+    public List<string> TiposOcurrencia { get; set; } = new List<string>();
+    [Parameter]
+    public int idOcurrencia { get; set; } 
+    [Parameter]
+    public string mensajeError { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ocurrencia = await http.GetFromJsonAsync<Incidencias.Shared.Models.Ocurrencia>($"Ocurrencia/{idOcurrencia}");
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var estados = await http.GetFromJsonAsync<List<Estado>>("Estado");
+            var tipos = await http.GetFromJsonAsync<List<TipoOcurrencia>>("Tipo");
+
+            foreach (var e in estados)
+            {
+                Estados.Add(e.Nombre);
+            }
+            foreach (var t in tipos)
+            {
+                TiposOcurrencia.Add(t.Nombre);
+            }
+            mensajeError = "Los datos se cargaron correctamente";
+        }
+        catch (Exception ex)
+        {
+            mensajeError = ex.Message;
+        }
+    }
+
+    async Task EditarOcurrencias()
+    {
+        ocurrencia.DiaTrabajoId = ocurrencia.DiaTrabajoId;
+        ocurrencia.Id = idOcurrencia;
+        ocurrencia.Estado = estadoSeleccionado;
+        ocurrencia.TipoOcurrencia = tipoOcurrenciaSeleccionado;
+        try
+        {
+            var ocur = await http.PutAsJsonAsync("Ocurrencia", ocurrencia);
+
+            if (!ocur.IsSuccessStatusCode)
+            {
+                mensajeError = await ocur.Content.ReadAsStringAsync();
+                return;
+            }
+            ocurrencia.Resumen = string.Empty;
+            ocurrencia.Descripcion = string.Empty;
+            ocurrencia.HoraCreada = new DateTime();
+            ocurrencia.ReportadaPor = string.Empty;
+            navigation.NavigateTo("/");
+        }
+        catch(Exception ex)
+        {
+            mensajeError = ex.Message;
+        }
+    }
+
+
+}

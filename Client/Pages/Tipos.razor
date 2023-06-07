@@ -1,0 +1,116 @@
+﻿
+@page "/tipos"
+@using Incidencias.Shared.Models
+@inject HttpClient http
+<PageTitle>Tipos de Ocurrencias</PageTitle>
+<h4>Lista de los Tipos de Ocurrencia </h4>
+<hr>
+<label class="mensaje">@mensajeError</label>
+<EditForm Model=@tipo OnValidSubmit = "@CrearTipoOcurrencia">
+ <div class = "form-control div-up">
+    <div class= "div-up-inside">
+        <div class ="div-up-middle">
+            <label>Entre el nombre del Tipo de Ocurrencia</label>
+            <div class="input-div">
+                <InputText class="input" @bind-Value="@tipo.Nombre"></InputText>
+                <ValidationMessage For="@(()=> tipo.Nombre)" />
+            </div>  
+        </div>
+        <div class ="div-up-middle">
+            <label>Descripción del Tipo de Ocurrencia</label>
+            <div class="input-div-desc">
+                <InputText @bind-Value="@tipo.Descripcion" class = "input-desc"></InputText>
+                <ValidationMessage For="@(()=> tipo.Descripcion)"/>
+            </div>
+        </div>
+    </div>
+    <button class="button" type="submit">Guardar el Tipo</button>
+    <DataAnnotationsValidator/>
+ </div>
+</EditForm>
+@if(ListaTipos == null)
+{
+    <span>Estoy tratando de cargar los Tipos de Ocurrencias... Por favor espere</span>
+}
+else 
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th class="th-up">
+                Nombre
+            </th>
+            <th class="th-center">
+                Descripción
+            </th>
+            <th class = "th th-down">
+                Acciones
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var tipo in @ListaTipos)
+{
+        <tr class="tr-items">
+            <td class="tr-items">
+                @tipo.Nombre
+            </td>
+            <td class="tr-items">
+                @tipo.Descripcion
+            </td>
+            <td class = "th-buttons">
+                    <button type="submit" @onclick="@(() => BorrarTipo(tipo.Id))" class="button-delete">
+                        <span class="button-add-image-container">
+                            <img class="button-add-image" src="../img/delete.svg" />
+                        </span>
+                    </button>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+}
+@code {
+    TipoOcurrencia tipo= new TipoOcurrencia();
+    [Parameter]
+    public List<TipoOcurrencia> ListaTipos { get; set; }
+    [Parameter]
+    public string mensajeError { get; set; }
+
+    async Task CrearTipoOcurrencia()
+    {
+        var resultado = await http.PostAsJsonAsync("Tipo",tipo);
+        if(!resultado.IsSuccessStatusCode)
+        {
+            mensajeError = await resultado.Content.ReadAsStringAsync();
+            return;
+        }
+        tipo.Nombre = string.Empty;
+        tipo.Descripcion = string.Empty;
+
+        await CargarTipos();
+        StateHasChanged();
+        mensajeError = "El Tipo de ocurrencia fue creado correctamente";
+    }
+    async Task CargarTipos()
+    {
+        ListaTipos = await http.GetFromJsonAsync<List<TipoOcurrencia>>("Tipo");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaTipos = await http.GetFromJsonAsync<List<TipoOcurrencia>>("Tipo");
+    }
+
+    async Task BorrarTipo(int id)
+    {
+        var resultado = await http.DeleteAsync($"Tipo/{id}");
+        if(!resultado.IsSuccessStatusCode)
+        {
+            mensajeError = await resultado.Content.ReadAsStringAsync();
+            return;
+        }
+        await CargarTipos();
+        mensajeError = "El Tipo de ocurrencia fue eliminado correctamente";
+    }
+}

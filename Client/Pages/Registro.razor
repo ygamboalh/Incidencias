@@ -1,0 +1,109 @@
+﻿@page "/registro"
+@using Incidencias.Shared.Models
+@inject HttpClient http
+<PageTitle>Días de trabajo</PageTitle>
+<h4>Registro de los Días de trabajo</h4>
+<label>Total de días de trabajo: @ListaDiaTrabajos.Count</label>
+<hr>
+<label class = "mensaje">@mensajeError</label><br>
+@if(ListaDiaTrabajos.Count == 0)
+{
+    <span>Estoy tratando de listar los Días de trabajo... Por favor espere</span>
+}
+else
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th class="th-up">
+                Fecha de Inicio
+            </th>
+            <th class="th-center">
+                Día de la semana
+            </th>
+            <th class = "th-down">
+                Cantidad de ocurrencias
+            </th>
+            <th class = "th-down">
+                Abierto por
+            </th>
+            <th class = "th-down">
+                Estado
+            </th>
+            <th class = "th th-down">
+                Acciones
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var dia in @ListaDiaTrabajos)
+    {
+        <tr class="tr-items">
+            <td class="tr-items">
+                @dia.HoraInicio
+            </td>
+            <td class="tr-items">
+                @dia.DiaDeSemana
+            </td>
+            <td class="tr-items">
+                @dia.Ocurrencias.Count
+            </td>
+            <td class="tr-items">
+                @dia.AbiertoPor
+            </td>
+            <td class="tr-items">
+                @if(dia.Estado == "Abierto")
+                 {
+                   <label class="abierto">@dia.Estado</label>
+                 }
+                 else {<label class="cerrado">@dia.Estado</label>}
+            </td>
+            <td class = "th-buttons">
+                    <button @onclick="@(() => BorrarDia(dia.Id))" type="submit" class="button-delete">
+                        <span class="button-add-image-container">
+                            <img class="button-add-image" src="../img/delete.svg" />
+                        </span>
+                    </button>
+            </td>
+        </tr>
+    }       
+    </tbody>
+</table>
+}
+@code{
+    DiaTrabajo diaTrabajo = new DiaTrabajo();
+    [Parameter]
+    public List<DiaTrabajo> ListaDiaTrabajos { get; set; } = new List<DiaTrabajo>();
+    [Parameter]
+    public string mensajeError { get; set; }
+
+    async Task CargarDiasTrabajo()
+    {
+        ListaDiaTrabajos = await http.GetFromJsonAsync<List<DiaTrabajo>>("DiaTrabajo");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ListaDiaTrabajos = await http.GetFromJsonAsync<List<DiaTrabajo>>("DiaTrabajo");
+        }
+        catch(Exception ex)
+        {
+            mensajeError = ex.Message;
+        }
+    }
+
+    async Task BorrarDia(int id)
+    {
+        var resultado = await http.DeleteAsync($"DiaTrabajo/{id}");
+        if(!resultado.IsSuccessStatusCode)
+        {
+            mensajeError = await resultado.Content.ReadAsStringAsync();
+            return;
+        }
+        await CargarDiasTrabajo();
+        StateHasChanged();
+        mensajeError = "El Día trabajo fue eliminado correctamente";
+    }
+}

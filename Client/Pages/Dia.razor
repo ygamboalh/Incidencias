@@ -1,0 +1,58 @@
+﻿@page "/dia"
+@inject HttpClient http
+@inject NavigationManager navigation
+@using Incidencias.Shared.Models
+@using System.Globalization
+<PageTitle>Iniciar un Día de trabajo</PageTitle>
+<h4>Iniciar un día trabajo</h4>
+<hr/>
+<label class ="mensaje">@mensajeError</label>
+<EditForm Model=@diaTrabajo OnValidSubmit = "@CrearDiaTrabajo">
+ <div class = "form-control div-up">
+    <div class= "div-up-inside">
+        <div class ="div-up-middle">
+            <label>Fecha de inicio</label>
+            <div class="input-div">
+                <input type="time" class="input" @bind="@diaTrabajo.HoraInicio"></input>
+                <ValidationMessage For="@(()=> diaTrabajo.HoraInicio)" />
+            </div>  
+        </div>    
+            <label>Abierto por:</label>
+        <div class ="div-up-middle">
+            <div class="input-div">
+                <InputText @bind-Value="@diaTrabajo.AbiertoPor" class = "input"></InputText>
+                <ValidationMessage For="@(()=> @diaTrabajo.AbiertoPor)"/>
+            </div> 
+        </div>
+    </div>
+    <button class="button" type="submit">Iniciar dia de trabajo</button>
+    <DataAnnotationsValidator/>
+ </div>
+</EditForm>
+
+
+@code {
+    DiaTrabajo diaTrabajo = new DiaTrabajo();
+    [Parameter]
+    public List<DiaTrabajo> ListaDias { get; set; }
+    [Parameter]
+    public string mensajeError{ get; set; }
+
+    async Task CrearDiaTrabajo()
+    {
+        DateTime date = new DateTime(DateTime.Now.Year,DateTime.Now.Month,DateTime.Now.Day);
+        diaTrabajo.DiaDeSemana = date.ToString("dddd",new CultureInfo("es-ES"));  
+        var resultado = await http.PostAsJsonAsync("DiaTrabajo",diaTrabajo);
+        diaTrabajo.HoraInicio = new DateTime();
+        diaTrabajo.AbiertoPor = string.Empty;
+        if (!resultado.IsSuccessStatusCode)
+        {
+            mensajeError = "Ha habido un error y no he podido abrir el día. Recuerde que sólo puede tener un día abierto";
+            return;
+        }
+        else
+        {
+            navigation.NavigateTo("/registro");
+        }
+    }
+}

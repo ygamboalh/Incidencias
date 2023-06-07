@@ -1,0 +1,18 @@
+﻿<div class="alert success mt-4">
+    <span class="oi me-2" aria-hidden="true">
+        <img src="../img/bell.svg" />
+    </span>
+    <strong>@Titulo</strong>
+    <span class="span">
+        @Texto
+    </span>
+</div>
+
+@code {
+
+    [Parameter]
+    public string? Titulo { get; set; }
+
+    [Parameter]
+    public string? Texto { get; set; }
+}

@@ -1,0 +1,215 @@
+﻿@page "/"
+@using Incidencias.Shared.Models
+@inject HttpClient http
+@inject NavigationManager navigation
+<h4>Día de trabajo abierto</h4>
+<hr>
+<label class ="mensaje">@mensajeError</label>
+
+@if (diaTrabajo != null)
+{
+    <div class="">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card div-work">
+                            <div class="card-body">
+                                <span>Identificador del Día: @diaTrabajo.Id</span><br>
+                                <label>Abierto por: @diaTrabajo.AbiertoPor</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card div-open">
+                            <div class="card-body">
+                                <span>Abierto desde: @diaTrabajo.HoraCreado.Date</span><br>
+                                <span>Total de Ocurrencias: @Ocurrencias.Count</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <a style="text-decoration:none" href="/crear-ocurrencia">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card div-add">
+                            <div class="card-body">
+                                <span>Agregar una Ocurrencia</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </a>
+            </div>
+            <div class="col-sm-3">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card div-since">
+                            <div class="card-body">
+                                <span>Cerrar el Día de trabajo</span><br>
+                                <span>[ Proceso irreversible ]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if(Ocurrencias.Count == 0)
+    {
+        <span>No he podido cargar los ocurrencias</span>
+    }
+    else { 
+    <hr>
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="th-up">
+                    Día
+                </th>
+                <th class="th-center">
+                    Descripción
+                </th>
+                <th class = "th-down">
+                    Hora
+                </th>
+                <th class = "th-down">
+                    Reportada por
+                </th>
+                <th class = "th-down">
+                    Tipo
+                </th>
+                <th class = "th th-down">
+                    Estado
+                </th>
+                <th class = "th th-down">
+                </th>
+                <th class = "th th-down">
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Ocurrencias.Count != 0)
+            {
+                @foreach (var ocurrencia in Ocurrencias)
+                {
+                    <tr class="tr-items">
+                        <td class="tr-items">
+                    <span>@ocurrencia.DiaTrabajoId</span>
+                </td>
+                <td class="tr-items">
+                    @ocurrencia.Descripcion
+                </td>
+                <td class="tr-items">
+                    @ocurrencia.HoraOcurrencia
+                </td>
+                <td class="tr-items">
+                    @ocurrencia.ReportadaPor
+                </td>
+                <td class="tr-items">
+                    @if(@ocurrencia.TipoOcurrencia == "Hecho extraordinario")
+                    {
+                        <label class="hecho">@ocurrencia.TipoOcurrencia</label>    
+                    }
+                    else {<label>@ocurrencia.TipoOcurrencia</label>}
+                </td>
+                <td class="tr-items">
+                    @if(@ocurrencia.Estado == "Informada")
+                    {
+                        <label class="informada">@ocurrencia.Estado</label>    
+                    }
+                    else{<label>@ocurrencia.Estado</label>}
+                </td>
+                <td class = "th-buttons">
+                    <button type="submit" class="button-delete">
+                        <a href="detalle/@ocurrencia.Id">
+                            <span class="button-add-image-container">
+                                <img class="button-add-image" src="../img/blue-eye.svg" />
+                            </span>
+                        </a>
+                    </button>
+                </td>
+                <td class = "th-buttons">
+                    <button type="submit" class="button-delete">
+                        <a href="editar-ocurrencia/@ocurrencia.Id">
+                            <span class="button-add-image-container">
+                                <img class="button-add-image" src="../img/edit.svg" />
+                            </span>
+                        </a>
+                    </button>
+                </td>
+                <td class = "th-buttons">
+                    <button type="submit" @onclick="@(() => BorrarOcurrencia(ocurrencia.Id))" class="button-delete">
+                        <span class="button-add-image-container">
+                            <img class="button-add-image" src="../img/delete.svg" />
+                        </span>
+                    </button>
+                </td>
+            </tr>
+            }
+        }
+        </tbody>
+    </table>
+  }
+}
+else { return; }
+@code {
+    [Parameter]
+    public List<Incidencias.Shared.Models.Ocurrencia> Ocurrencias { get; set; } = new List<Incidencias.Shared.Models.Ocurrencia>();
+
+    DiaTrabajo diaTrabajo = new DiaTrabajo();
+    [Parameter]
+    public string mensajeError { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string estado = "Abierto";
+        try
+        {
+            var dias = await http.GetFromJsonAsync<List<DiaTrabajo>>("DiaTrabajo");
+            foreach (var dia in dias)
+            {
+                if (dia.Estado == estado)
+                {
+                    diaTrabajo = dia;
+                }
+            }
+            await CargarOcurrencias();
+        }
+        catch (Exception ex)
+        {
+            mensajeError = ex.Message;
+        }
+    }
+    async Task CargarOcurrencias()
+    {
+        Ocurrencias = new List<Incidencias.Shared.Models.Ocurrencia>();
+        var ocurrs = await http.GetFromJsonAsync<List<Incidencias.Shared.Models.Ocurrencia>>("Ocurrencia");
+            foreach (var ocurr in ocurrs)
+            {
+                if (ocurr.DiaTrabajoId == diaTrabajo.Id)
+                {
+                    Ocurrencias.Add(ocurr);
+                }
+            }
+    }
+    async Task BorrarOcurrencia(int id)
+    {
+        var resultado = await http.DeleteAsync($"Ocurrencia/{id}");
+        if(!resultado.IsSuccessStatusCode)
+        {
+            mensajeError = await resultado.Content.ReadAsStringAsync();
+            return;
+        }
+        mensajeError = "La Ocurrencia fue eliminada correctamente";
+        await CargarOcurrencias();
+        StateHasChanged();
+    }
+}

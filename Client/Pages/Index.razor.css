@@ -1,0 +1,177 @@
+﻿table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 0px solid #c0bdbd;
+    border-radius: 8px;
+    box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
+    box-sizing: border-box;
+}
+
+.button-delete {
+    background-color: white;
+    background-position: center;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border: none;
+    align-content: center;
+    justify-content: center;
+}
+
+    .button-delete:hover {
+        background-color: #f4f1f1;
+        border-radius: 50px;
+    }
+
+.button-add-image-container {
+    width: 30px;
+    height: 30px;
+    align-content: center;
+    justify-content: center;
+}
+
+.button-add-image {
+    width: 20px;
+    height: 20px;
+}
+.th-up {
+    padding: 8px;
+    border-start-start-radius: 8px;
+    text-align: left;
+    border-bottom: none;
+    background-color: #F9FAFC;
+}
+
+.th-center {
+    padding: 8px;
+    text-align: left;
+    border-bottom: none;
+    background-color: #F9FAFC;
+}
+
+.th-down {
+    padding: 8px;
+    border-start-end-radius: 8px;
+    text-align: left;
+    border-bottom: none;
+    background-color: #F9FAFC;
+}
+
+.th {
+    width: 40px;
+    text-align: center;
+}
+
+.th-buttons {
+    text-align: center;
+    align-content: center;
+    border: none;
+    border-width: 1px;
+    border-color: #f6f0f0;
+}
+
+.tr-items {
+    align-content: center;
+    align-items: center;
+    vertical-align: middle;
+    border: solid;
+    border-width: 1px;
+    border-color: #f6f0f0;
+}
+.div-up{
+    background-color: white;
+    margin-bottom: 10px;
+    align-content: center;
+    align-items: center;
+    border: 0px solid #c0bdbd;
+    border-radius: 8px;
+    box-shadow: rgba(213, 217, 217, .5) 0 2px 5px 0;
+    box-sizing: border-box;
+}
+
+.div-work {
+    background-color: white;
+    margin-bottom: 10px;
+    height: 120px;
+    align-content: left;
+    align-items: left;
+    border: 0px solid red;
+    border-radius: 5px;
+    color: black;
+    box-shadow: rgba(213, 217, 217, .8) 0px 0px 2px 0px;
+    box-sizing: border-box;
+}
+    .div-work:hover {
+        background-color: #02000003;
+    }
+
+.div-since {
+    background-color: white;
+    margin-bottom: 10px;
+    height: 120px;
+    align-content: left;
+    align-items: left;
+    border: 0px solid red;
+    border-radius: 5px;
+    color: black;
+    box-shadow: rgba(213, 217, 217, .8) 0px 0px 2px 0px;
+    box-sizing: border-box;
+}
+
+    .div-since:hover {
+        background-color: #02000003;
+    }
+
+.div-open {
+    background-color: white;
+    margin-bottom: 10px;
+    height: 120px;
+    align-content: left;
+    align-items: left;
+    border: 0px solid red;
+    border-radius: 5px;
+    color: black;
+    box-shadow: rgba(213, 217, 217, .8) 0px 0px 2px 0px;
+    box-sizing: border-box;
+}
+
+    .div-open:hover {
+        background-color: #02000003;
+    }
+
+.div-add {
+    background-color: white;
+    margin-bottom: 10px;
+    height: 120px;
+    align-content: left;
+    align-items: left;
+    border: 0px solid red;
+    border-radius: 5px;
+    color: black;
+    box-shadow: rgba(213, 217, 217, .8) 0px 0px 2px 0px;
+    box-sizing: border-box;
+}
+
+    .div-add:hover {
+        background-color: #02000003;
+    }
+
+.informada {
+    background-color: #108ae1;
+    border-radius: 10px;
+    padding: 0px 8px 0px 8px;
+    color: white;
+}
+
+.hecho {
+    background-color: red;
+    border-radius: 10px;
+    padding: 0px 8px 0px 8px;
+    color: white;
+}
+.incio {
+    background-color: #26a80f;
+    border-radius: 10px;
+    padding: 0px 8px 0px 8px;
+    color: white;
+}

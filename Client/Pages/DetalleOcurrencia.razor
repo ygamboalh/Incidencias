@@ -1,0 +1,73 @@
+﻿@page "/detalle/{idOcurrencia:int}"
+@inject HttpClient http
+@using Incidencias.Shared.Models
+
+<h5>Detalles de la Ocurrencia: @ocurrencia.Id</h5>
+<hr>
+<div class = "form-control div-up">
+
+        <div class= "div-up-middle">
+            <label>Día de trabajo:
+                <span>@ocurrencia.DiaTrabajoId</span>
+            </label>
+        </div>
+        <div class= "div-up-middle">
+            <label>Descripción de la Ocurrencia:
+                <span>@ocurrencia.Descripcion</span>
+            </label>
+        </div>
+        <div class ="div-up-middle">
+            <label>Resumen de la Ocurrencia:
+                <span>@ocurrencia.Resumen</span>
+            </label>
+        </div>
+        <div class ="div-up-middle">
+            <label>Hora de la Ocurrencia:
+                <span>@ocurrencia.HoraOcurrencia</span>
+            </label>
+        </div>
+        <div class ="div-up-middle">
+            <label>Reportado Por:
+                <span>@ocurrencia.ReportadaPor</span>
+            </label>
+        </div>
+        <div class ="div-up-middle">
+            <label>Estado:
+                <span>@ocurrencia.Estado</span>
+            </label>
+        </div>
+        <div class ="div-up-middle">
+            <label>Tipo de ocurrencia:
+                <span>@ocurrencia.TipoOcurrencia</span>
+            </label>
+        </div>
+        <button class="button">
+           <a href="editar-ocurrencia/@ocurrencia.Id">
+                Editar
+            </a>
+        </button>
+        <button class="button">
+           <a href="/">
+                Volver atrás
+            </a>
+        </button>
+    </div>
+@code {
+    [Parameter]
+    public int idOcurrencia { get; set; } 
+    Incidencias.Shared.Models.Ocurrencia ocurrencia = new Incidencias.Shared.Models.Ocurrencia();
+    public string mensajeError { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ocurrencia = await http.GetFromJsonAsync<Incidencias.Shared.Models.Ocurrencia>($"Ocurrencia/{idOcurrencia}");
+            mensajeError = "Los datos se cargaron correctamente";
+        }
+        catch (Exception ex)
+        {
+            mensajeError = ex.Message;
+        }
+    }
+}

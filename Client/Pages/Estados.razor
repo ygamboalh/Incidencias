@@ -1,0 +1,116 @@
+﻿@page "/estados"
+@using Incidencias.Shared.Models
+@inject HttpClient http
+<PageTitle>Estados de la Ocurrencias</PageTitle>
+<h4>Lista de los Estados de una Ocurrencia </h4>
+<hr>
+<label class="mensaje">@mensajeError</label>
+<EditForm Model=@estado OnValidSubmit = "@CrearEstado">
+ <div class = "form-control div-up">
+    <div class= "div-up-inside">
+        <div class ="div-up-middle">
+            <label>Entre el nombre del Estado</label>
+            <div class="input-div">
+                <InputText class="input" @bind-Value="@estado.Nombre"></InputText>
+                <ValidationMessage For="@(()=> estado.Nombre)" />
+            </div>  
+        </div>
+        <div class ="div-up-middle">
+            <label>Descripción del Estado</label>
+            <div class="input-div-desc">
+                <InputText @bind-Value="@estado.Descripcion" class = "input-desc"></InputText>
+                <ValidationMessage For="@(()=> estado.Descripcion)"/>
+            </div>
+        </div>
+    </div>
+    <button class="button" type="submit">Guardar el Estado</button>
+    <DataAnnotationsValidator/>
+ </div>
+</EditForm>
+@if(ListaEstados == null)
+{
+    <span>Estoy tratando de cargar los Estados... Por favor espere</span>
+}
+else 
+{
+<table class="table">
+    <thead>
+        <tr>
+            <th class="th-up">
+                Nombre
+            </th>
+            <th class="th-center">
+                Descripción
+            </th>
+            <th class = "th th-down">
+                Acciones
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var estado in @ListaEstados)
+{
+        <tr class="tr-items">
+            <td class="tr-items">
+                @estado.Nombre
+            </td>
+            <td class="tr-items">
+                @estado.Descripcion
+            </td>
+            <td class = "th-buttons">
+                    <button type="submit" @onclick="@(() => BorrarEstado(estado.Id))"  class="button-delete">
+                        <span class="button-add-image-container">
+                            <img class="button-add-image" src="../img/delete.svg" />
+                        </span>
+                    </button>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+}
+@code {
+    Estado estado = new Estado();
+    [Parameter]
+    public List<Estado> ListaEstados { get; set; }
+    [Parameter]
+    public string mensajeError { get; set; }
+
+    async Task CrearEstado()
+    {
+        var resultado = await http.PostAsJsonAsync("Estado",estado);
+
+        if(!resultado.IsSuccessStatusCode)
+        {
+            mensajeError = await resultado.Content.ReadAsStringAsync();
+            return;
+        }
+            estado.Nombre = string.Empty;
+            estado.Descripcion = string.Empty;
+            await CargarEstados();
+            StateHasChanged();
+            mensajeError = "El Estado fue creado correctamente";
+    }
+    async Task CargarEstados()
+    {
+        ListaEstados = await http.GetFromJsonAsync<List<Estado>>("Estado");
+        mensajeError = "Los datos se cargaron correctamente";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        ListaEstados = await http.GetFromJsonAsync<List<Estado>>("Estado");
+    }
+
+    async Task BorrarEstado(int id)
+    {
+        var resultado = await http.DeleteAsync($"Estado/{id}");
+        if(!resultado.IsSuccessStatusCode)
+        {
+            mensajeError = await resultado.Content.ReadAsStringAsync();
+            return;
+        }
+        await CargarEstados();
+        mensajeError = "El Estado fue eliminado correctamente";
+    }
+}
